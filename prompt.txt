@@ -1,0 +1,18 @@
+開發一個線上遊戲 「台灣麻將」,將提供 網頁版 和 APP 版 （android, iOS）, 有關台灣麻將的遊戲規則請參考底下檔案：
+@reference\16張麻將玩法.md
+@'reference\Taiwanese Mahjong Rules.md'
+@reference\台灣16張麻將玩法指南.md
+@reference\台灣人的台灣十六張麻將.md
+@reference\台灣話麻將則.md
+@reference\麻將全攻略.md
+@reference\麻將基礎與規則.md
+@reference\麻將特殊規則.md
+@reference\麻將玩法.md
+@reference\麻將玩法介紹.md
+@reference\麻將規則.md
+
+另有一份系統分析文件, 此文件的截圖均存放在 ＠reference\FromGaaS\ 目錄下,  你可以參考此份文件, 不須完全按照他的設計, 可以有自己的設計
+
+請先產生此線上遊戲的 PRD, 不須產生任何程式碼
+
+Please ultrathink to analyze these related documents and do deeply research.
