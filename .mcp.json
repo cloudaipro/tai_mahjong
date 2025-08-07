@@ -7,6 +7,28 @@
         "@upstash/context7-mcp"
       ]
     },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "puppeteer-mcp-server"
+      ],
+      "env": {}
+    },
+    "firecrawl-mcp": {
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp"],
+      "env": {
+        "FIRECRAWL_API_KEY": "fc-0b33072d33dd42a99a9aa408bf4f416c"
+      }
+    },
     "graphiti-memory": {
       "transport": "stdio",
       "command": "/home/skchen/.local/bin/uv",
@@ -24,8 +46,7 @@
       "env": {
         "NEO4J_URI": "bolt://localhost:7687",
         "NEO4J_USER": "neo4j",
-        "NEO4J_PASSWORD": "demodemo",
-        "OPENAI_API_KEY": "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"
+        "NEO4J_PASSWORD": "demodemo"
       }
     }
   }

@@ -59,10 +59,10 @@ tai_mahjong/
 ## 💻 技術架構
 
 - **前端**: React.js + TypeScript (Web), React Native/Flutter (Mobile)
-- **後端**: Node.js/Go + 微服務架構
+- **後端**: Node.js + 模組化單體架構 (Modular Monolith)
 - **資料庫**: PostgreSQL + Redis
 - **即時通訊**: WebSocket
-- **雲端部署**: Docker + Kubernetes
+- **雲端部署**: Docker 容器化部署
 
 ## 📋 開發計畫
 

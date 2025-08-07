@@ -1,0 +1,21 @@
+{
+  "env": {
+    "ANTHROPIC_CUSTOM_HEADERS": "anthropic-beta: interleaved-thinking-2025-05-14",
+    "MAX_THINKING_TOKENS": "30000"
+  },
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:web.archive.org)",
+      "WebFetch(domain:ezmjtw.tripod.com)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "mcp__graphiti-memory__add_memory",
+      "mcp__graphiti-memory__get_episodes"
+    ],
+    "deny": []
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "context7"
+  ]
+}

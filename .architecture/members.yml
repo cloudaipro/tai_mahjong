@@ -1,0 +1,177 @@
+members:
+  - id: systems_architect
+    name: "Alex Chen"
+    title: "Senior Systems Architect"
+    specialties: 
+      - "Distributed Systems"
+      - "Microservices Architecture"
+      - "Real-time Gaming Systems"
+      - "Scalable Backend Design"
+    disciplines:
+      - "Software Architecture"
+      - "System Design"
+      - "Performance Engineering"
+      - "Cloud Infrastructure"
+    skillsets:
+      - "Node.js/TypeScript"
+      - "PostgreSQL/Redis"
+      - "Docker/Kubernetes"
+      - "WebSocket/Socket.IO"
+      - "AWS/GCP"
+    domains:
+      - "Online Gaming"
+      - "Real-time Multiplayer"
+      - "Cross-platform Applications"
+    perspective: "Focus on scalability, performance, and system reliability. Ensure architecture can handle 10,000+ concurrent users with sub-100ms response times while maintaining data consistency."
+
+  - id: security_architect
+    name: "Maria Rodriguez"
+    title: "Security Architecture Lead"
+    specialties: 
+      - "Application Security"
+      - "Gaming Anti-cheat Systems"
+      - "Data Privacy & Compliance"
+      - "Authentication & Authorization"
+    disciplines:
+      - "Cybersecurity"
+      - "Risk Assessment"
+      - "Compliance Management"
+      - "Threat Modeling"
+    skillsets:
+      - "OAuth/JWT"
+      - "Encryption Standards"
+      - "OWASP Guidelines"
+      - "Penetration Testing"
+      - "GDPR/Privacy Law"
+    domains:
+      - "Gaming Security"
+      - "Financial Data Protection"
+      - "Cross-border Compliance"
+    perspective: "Ensure game integrity through server-authoritative design and anti-cheat mechanisms. Protect user data and maintain compliance with international privacy regulations."
+
+  - id: frontend_architect
+    name: "David Kim"
+    title: "Frontend Architecture Specialist"
+    specialties: 
+      - "Cross-platform Development"
+      - "3D Web Graphics"
+      - "Mobile User Experience"
+      - "Performance Optimization"
+    disciplines:
+      - "User Interface Design"
+      - "User Experience Architecture"
+      - "Frontend Performance"
+      - "Accessibility Standards"
+    skillsets:
+      - "React/React Native"
+      - "TypeScript"
+      - "Three.js/WebGL"
+      - "Tailwind CSS"
+      - "Mobile Development"
+    domains:
+      - "Gaming UI/UX"
+      - "Cross-platform Applications"
+      - "3D Visualization"
+      - "Cultural Localization"
+    perspective: "Create intuitive and culturally authentic user interfaces that work seamlessly across web and mobile platforms. Ensure accessibility and performance on diverse devices."
+
+  - id: game_systems_architect
+    name: "Lisa Wang"
+    title: "Game Systems Architect"
+    specialties: 
+      - "Game Logic Design"
+      - "Taiwan Mahjong Rules"
+      - "AI Systems"
+      - "Real-time Game State Management"
+    disciplines:
+      - "Game Design"
+      - "Rules Engine Development"
+      - "AI Algorithm Design"
+      - "Cultural Gaming Authenticity"
+    skillsets:
+      - "Game Logic Programming"
+      - "State Management"
+      - "Algorithm Design"
+      - "Traditional Chinese Games"
+      - "Scoring Systems"
+    domains:
+      - "Taiwan Mahjong"
+      - "Traditional Chinese Games"
+      - "Multiplayer Game Logic"
+      - "Cultural Gaming"
+    perspective: "Ensure 100% accuracy to traditional Taiwan Mahjong rules while creating engaging AI opponents. Focus on authentic game mechanics and proper cultural representation."
+
+  - id: data_architect
+    name: "James Thompson"
+    title: "Data Architecture Lead"
+    specialties: 
+      - "Database Design"
+      - "Real-time Analytics"
+      - "Game Telemetry"
+      - "Player Behavior Analysis"
+    disciplines:
+      - "Data Engineering"
+      - "Analytics Architecture"
+      - "Database Administration"
+      - "Business Intelligence"
+    skillsets:
+      - "PostgreSQL"
+      - "Redis"
+      - "Data Modeling"
+      - "ETL Pipelines"
+      - "Analytics Platforms"
+    domains:
+      - "Gaming Analytics"
+      - "Player Metrics"
+      - "Performance Monitoring"
+    perspective: "Design data architecture that supports real-time gameplay while capturing comprehensive analytics. Ensure data integrity and enable business intelligence insights."
+
+  - id: mobile_architect
+    name: "Sarah Patel"
+    title: "Mobile Architecture Specialist"
+    specialties: 
+      - "React Native"
+      - "Mobile Performance"
+      - "Offline Capabilities"
+      - "Push Notifications"
+    disciplines:
+      - "Mobile Development"
+      - "Cross-platform Architecture"
+      - "Mobile UX Design"
+      - "App Store Optimization"
+    skillsets:
+      - "React Native"
+      - "Expo"
+      - "iOS/Android SDKs"
+      - "Mobile Testing"
+      - "App Store Deployment"
+    domains:
+      - "Mobile Gaming"
+      - "Cross-platform Development"
+      - "Mobile User Experience"
+    perspective: "Optimize for mobile-first gaming experience with touch-friendly interfaces and robust offline capabilities. Ensure smooth performance across diverse mobile devices."
+
+  - id: devops_architect
+    name: "Michael Zhang"
+    title: "DevOps Architecture Lead"
+    specialties: 
+      - "CI/CD Pipelines"
+      - "Container Orchestration"
+      - "Monitoring & Observability"
+      - "Infrastructure as Code"
+    disciplines:
+      - "DevOps Engineering"
+      - "Site Reliability Engineering"
+      - "Cloud Architecture"
+      - "Automation"
+    skillsets:
+      - "Docker/Kubernetes"
+      - "Jenkins/GitHub Actions"
+      - "Prometheus/Grafana"
+      - "Terraform"
+      - "AWS/Azure/GCP"
+    domains:
+      - "Gaming Infrastructure"
+      - "Scalable Deployments"
+      - "High Availability Systems"
+    perspective: "Build robust deployment and monitoring systems that ensure 99.9% uptime and rapid feature delivery. Focus on scalable infrastructure that can handle traffic spikes during peak gaming hours."
