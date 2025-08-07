@@ -1,0 +1,38 @@
+{
+  "env": {
+    "ANTHROPIC_CUSTOM_HEADERS": "anthropic-beta: interleaved-thinking-2025-05-14",
+    "MAX_THINKING_TOKENS": "30000"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew:*)",
+      "Bash(java:*)",
+      "mcp__graphiti-memory__add_memory",
+      "mcp__graphiti-memory__search_memory_facts",
+      "mcp__graphiti-memory__search_memory_nodes",
+      "mcp__context7__resolve-library-id",
+      "WebFetch(domain:github.com)",
+      "mcp__graphiti-memory__get_episodes",
+      "WebFetch(domain:ai.google.dev)",
+      "WebFetch(domain:ai.google.dev)",
+      "Bash(/home/skchen/.local/bin/uv run python -c \"import graphiti_core; print(''Graphiti core version:'', graphiti_core.__version__)\")",
+      "Bash(echo:*)",
+      "Bash(pkill:*)",
+      "mcp__graphiti-memory__clear_graph",
+      "Bash(systemctl status:*)",
+      "Bash(curl:*)",
+      "Bash(convert:*)",
+      "Bash(ls:*)",
+      "Bash(cp:*)",
+      "Bash(find:*)",
+      "Bash(rm:*)",
+      "Bash(grep:*)",
+      "Bash(aapt dump badging:*)",
+      "Bash(mv:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "context7"
+  ]
+}
