@@ -1,15 +1,22 @@
 # Technical Specifications: Cryptographic Security and Monitoring Systems
 
-**Document Version**: 1.0  
+**Document Version**: 1.1  
 **Date**: 2025-08-08  
 **Status**: Implementation Required  
-**Related ADR**: ADR-002-collaborative-architecture-security-performance
+**Related ADRs**: ADR-002-collaborative-architecture-security-performance, ADR-003-development-methodology-selection  
+**Updated**: Integrated with DDD + Clean Architecture (Backend) and Component-based + Redux (Frontend) methodologies
 
 ---
 
 ## Overview
 
-This document provides detailed technical specifications for implementing cryptographic security measures and comprehensive monitoring systems for the Taiwan Mahjong online game, as mandated by the collaborative architecture review recommendations.
+This document provides detailed technical specifications for implementing cryptographic security measures and comprehensive monitoring systems for the Taiwan Mahjong online game, integrated with the adopted development methodologies:
+
+- **Backend Security Implementation**: DDD + Clean Architecture patterns with security as cross-cutting concern
+- **Frontend Security Integration**: Component-based + Redux with secure command processing  
+- **Cross-cutting Security**: Type-safe interfaces and end-to-end encryption
+
+These specifications build upon collaborative architecture review recommendations and methodology selections.
 
 ## 1. Cryptographic Security Specifications
 
@@ -20,9 +27,87 @@ This document provides detailed technical specifications for implementing crypto
 **Hash Function**: SHA-384  
 **Key Size**: 384-bit private key, 768-bit public key
 
-#### Implementation Requirements:
+#### Implementation Requirements with DDD + Clean Architecture:
 
 ```typescript
+// Domain Layer - Security Value Objects
+class CommandSignature {
+  constructor(
+    private readonly signature: Uint8Array,
+    private readonly algorithm: 'ECDSA-P384',
+    private readonly timestamp: number
+  ) {}
+  
+  isValid(publicKey: CryptoKey, payload: string): Promise<boolean> {
+    return webcrypto.subtle.verify(
+      { name: 'ECDSA', hash: 'SHA-384' },
+      publicKey,
+      this.signature,
+      new TextEncoder().encode(payload)
+    );
+  }
+}
+
+// Domain Layer - Secure Command Entity
+class SecureGameCommand {
+  constructor(
+    private readonly gameCommand: GameCommand,
+    private readonly playerId: PlayerId,
+    private readonly nonce: Nonce,
+    private readonly signature: CommandSignature
+  ) {}
+  
+  // Domain method for signature validation
+  async validateSignature(verificationService: ISignatureVerificationService): Promise<ValidationResult> {
+    const payload = this.createPayload();
+    const isValid = await this.signature.isValid(
+      await verificationService.getPublicKey(this.playerId),
+      payload
+    );
+    
+    return isValid ? 
+      ValidationResult.success() : 
+      ValidationResult.failure('Invalid signature');
+  }
+  
+  private createPayload(): string {
+    return JSON.stringify({
+      command: this.gameCommand.serialize(),
+      playerId: this.playerId.value,
+      nonce: this.nonce.value,
+      timestamp: this.signature.timestamp
+    });
+  }
+}
+
+// Application Layer - Security Service
+@Injectable()
+class SecureCommandService {
+  constructor(
+    private readonly signatureService: ISignatureVerificationService,
+    private readonly nonceService: INonceValidationService
+  ) {}
+  
+  async validateSecureCommand(secureCommand: SecureGameCommand): Promise<SecurityValidationResult> {
+    // Validate signature
+    const signatureValidation = await secureCommand.validateSignature(this.signatureService);
+    if (!signatureValidation.isSuccess()) {
+      return SecurityValidationResult.failure('Invalid signature');
+    }
+    
+    // Validate nonce (prevent replay attacks)
+    const nonceValidation = await this.nonceService.validateNonce(
+      secureCommand.getNonce()
+    );
+    if (!nonceValidation.isSuccess()) {
+      return SecurityValidationResult.failure('Replay attack detected');
+    }
+    
+    return SecurityValidationResult.success();
+  }
+}
+
+// Infrastructure Layer - Cryptographic Configuration
 interface CryptographicConfig {
   algorithm: {
     name: 'ECDSA';
@@ -33,17 +118,63 @@ interface CryptographicConfig {
   extractable: boolean;
   keyRotationPeriod: number; // 90 days in milliseconds
 }
+```
 
-interface SecureCommand {
-  payload: {
-    command: GameCommand;
-    playerId: string;
-    timestamp: number;
-    nonce: number[];
-    roomId: string;
-  };
-  signature: number[];
-  version: string;
+#### Frontend Security Integration with Component-based + Redux:
+
+```typescript
+// Redux Middleware for Command Security
+const securityMiddleware: Middleware = (store) => (next) => (action) => {
+  if (isGameAction(action)) {
+    // Sign command before sending to backend
+    const secureCommand = signGameCommand(action, getCurrentPlayerId());
+    
+    // Send secure command via WebSocket
+    webSocketService.sendSecureCommand(secureCommand);
+    
+    // Don't process action locally until server confirms
+    return;
+  }
+  
+  return next(action);
+};
+
+// React Component for Secure Command Processing
+const SecureGameActionsComponent: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const [signingInProgress, setSigningInProgress] = useState(false);
+  
+  const executeSecureCommand = useCallback(async (gameAction: GameAction) => {
+    setSigningInProgress(true);
+    
+    try {
+      // Create secure command with signature
+      const secureCommand = await createSecureCommand(gameAction);
+      
+      // Dispatch through security middleware
+      dispatch(secureCommand);
+      
+    } catch (error) {
+      // Handle security errors in UI
+      dispatch(showSecurityError('Command signing failed'));
+    } finally {
+      setSigningInProgress(false);
+    }
+  }, [dispatch]);
+  
+  return (
+    <ActionButtonsComponent 
+      onAction={executeSecureCommand}
+      disabled={signingInProgress}
+    />
+  );
+};
+
+// Type-safe Command Signing Interface
+interface SecureCommandCreator {
+  signMopaiCommand(playerId: string, gameId: string): Promise<SecureCommand>;
+  signDapaiCommand(playerId: string, gameId: string, tile: Tile): Promise<SecureCommand>;
+  signHupaiCommand(playerId: string, gameId: string): Promise<SecureCommand>;
 }
 ```
 
@@ -52,6 +183,7 @@ interface SecureCommand {
 - **Key Storage**: Encrypted at rest with AES-256-GCM
 - **Key Rotation**: Every 90 days, with 7-day overlap period
 - **Key Distribution**: Secure key exchange using ECDH
+- **Frontend Key Handling**: Client-side key caching with secure storage (Web Crypto API)
 
 ### 1.2 Anti-Replay Protection
 

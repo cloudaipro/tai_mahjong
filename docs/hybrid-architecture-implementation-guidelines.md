@@ -1,30 +1,500 @@
-# Taiwan Mahjong: Hybrid Architecture Implementation Guidelines
+# Taiwan Mahjong: Hybrid Architecture Implementation Guidelines with Development Methodologies
 
-**Document Version**: 1.0  
-**Date**: 2025-08-07  
+**Document Version**: 2.0  
+**Date**: 2025-08-08  
 **Target Audience**: Development Team, Technical Leads  
-**Status**: Active Implementation Guidelines
+**Status**: Active Implementation Guidelines  
+**Updated**: Integrated with Component-based + Redux (Frontend) and DDD + Clean Architecture (Backend) methodologies
 
 ---
 
 ## Overview
 
-This document provides comprehensive implementation guidelines for the hybrid architectural approach adopted for the Taiwan Mahjong online game project. The hybrid architecture combines Command Pattern, State Machines, Request-Response, and Selective Event-Driven patterns to optimize for performance, maintainability, and Taiwan Mahjong domain requirements.
+This document provides comprehensive implementation guidelines for the hybrid architectural approach adopted for the Taiwan Mahjong online game project. The hybrid architecture combines Command Pattern, State Machines, Request-Response, and Selective Event-Driven patterns with proven development methodologies:
+
+- **Backend Methodology**: Domain-Driven Design (DDD) + Clean Architecture  
+- **Frontend Methodology**: Component-based Architecture + Redux state management
+
+This integration optimizes for performance, maintainability, domain expressiveness, and Taiwan Mahjong requirements.
 
 ## Architecture Decision Summary
 
-Based on **ADR-001-hybrid-architecture-decision** and **ADR-002-collaborative-architecture-security-performance**, we use different patterns for different concerns with enhanced security and performance requirements:
+Based on **ADR-003-development-methodology-selection**, **ADR-002-collaborative-architecture-security-performance**, and hybrid architecture decisions, we implement patterns with specific methodologies:
 
-- **Command Pattern**: Game actions (摸牌, 打牌, 吃碰槓胡) with cryptographic signing
-- **State Machines**: Game flow and room lifecycle with integrity validation
-- **Request-Response**: Real-time player interactions (<70ms target)
-- **Selective Event-Driven**: Non-critical operations (chat, analytics, notifications)
+**Backend (DDD + Clean Architecture):**
+- **Command Pattern**: DDD Application Services handle game actions (摸牌, 打牌, 吃碰槓胡) with cryptographic signing
+- **State Machines**: Domain Services manage game flow and room lifecycle with integrity validation
+- **Request-Response**: Clean Architecture Presentation Layer for real-time interactions (<70ms target)
+- **Domain Events**: For selective event-driven non-critical operations (chat, analytics, notifications)
+
+**Frontend (Component-based + Redux):**
+- **Components**: React components for game elements (MahjongTile, GameBoard, PlayerHand, ScoringPanel)
+- **Redux Actions**: Map directly to backend commands with type safety
+- **State Management**: Redux store mirrors domain model state with immutable updates
+- **Container/Presentational**: Clear separation of logic and UI components
+
+**Cross-cutting Concerns:**
 - **Security Layer**: ECDSA digital signatures, server-side validation, anti-cheat ML
 - **Performance Layer**: Multi-level caching, binary protocols, database optimization
+- **Type Safety**: Shared TypeScript interfaces between frontend and backend
 
 ---
 
-## 1. Pattern Usage Guidelines
+## 1. Development Methodology Implementation
+
+### 1.1 Backend: DDD + Clean Architecture Integration
+
+#### Domain Layer Implementation
+```typescript
+// Taiwan Mahjong Domain Entities
+@Entity
+class Game {
+  private readonly gameId: GameId;
+  private gameState: GameState;
+  private players: Map<PlayerId, Player>;
+  private currentPlayer: PlayerId;
+  private tileWall: TileWall;
+  private flowerTiles: Map<PlayerId, FlowerTile[]>;
+
+  // Taiwan Mahjong domain methods with authentic terminology
+  executeMopai(playerId: PlayerId): DomainResult<TileDrawn> {
+    this.ensurePlayerCanAct(playerId, 'MOPAI');
+    
+    const tile = this.tileWall.drawTile();
+    const player = this.getPlayer(playerId);
+    player.addTileToHand(tile);
+    
+    // Domain event for non-critical features
+    this.publishDomainEvent(new TileDrawnEvent(playerId, tile, this.gameId));
+    
+    return DomainResult.success(new TileDrawn(tile, playerId));
+  }
+  
+  executeDapai(playerId: PlayerId, tile: Tile): DomainResult<TileDiscarded> {
+    this.ensurePlayerCanAct(playerId, 'DAPAI');
+    this.ensurePlayerHasTile(playerId, tile);
+    
+    const player = this.getPlayer(playerId);
+    player.removeTileFromHand(tile);
+    this.addToDiscardPile(tile);
+    this.advanceToNextPlayer();
+    
+    return DomainResult.success(new TileDiscarded(tile, playerId));
+  }
+  
+  executeHupai(playerId: PlayerId): DomainResult<GameCompleted> {
+    const player = this.getPlayer(playerId);
+    const scoringResult = this.scoringEngine.calculateTaishu(
+      player.getHand(), 
+      this.getWinConditions(playerId)
+    );
+    
+    if (!scoringResult.isValidWin()) {
+      return DomainResult.failure(new InvalidWinError('Invalid winning hand'));
+    }
+    
+    this.completeGame(playerId, scoringResult);
+    return DomainResult.success(new GameCompleted(playerId, scoringResult));
+  }
+}
+
+// Value Objects for Taiwan Mahjong concepts
+class Score {
+  constructor(
+    private readonly taishu: number,    // 台數
+    private readonly difen: number,     // 底分  
+    private readonly taifen: number     // 台分
+  ) {}
+  
+  getTotalScore(): number {
+    return this.difen + (this.taishu * this.taifen);
+  }
+  
+  equals(other: Score): boolean {
+    return this.taishu === other.taishu && 
+           this.difen === other.difen && 
+           this.taifen === other.taifen;
+  }
+}
+
+// Domain Services for complex business logic
+@Injectable()
+class ScoringEngine {
+  calculateTaishu(hand: Hand, winConditions: WinConditions): ScoringResult {
+    let taishu = 0;
+    
+    // Taiwan Mahjong specific scoring
+    if (winConditions.isSelfDraw) taishu += 1;  // 自摸
+    if (hand.isAllConcealed()) taishu += 1;     // 門清
+    if (hand.hasAllSimples()) taishu += 1;      // 平胡
+    
+    // Flower tile scoring
+    taishu += this.calculateFlowerTileScore(winConditions.flowerTiles);
+    
+    // Special hand patterns
+    taishu += this.calculateSpecialHandScore(hand);
+    
+    return new ScoringResult(taishu, hand, winConditions);
+  }
+}
+```
+
+#### Application Layer Implementation
+```typescript
+// Application Services as Command Handlers
+@Injectable()
+class GameCommandService {
+  constructor(
+    private readonly gameRepository: IGameRepository,
+    private readonly eventBus: IDomainEventBus,
+    private readonly logger: ILogger
+  ) {}
+
+  async executeMopai(command: MopaiCommand): Promise<GameCommandResult> {
+    // Clean Architecture: No infrastructure dependencies in use case
+    const game = await this.gameRepository.findById(command.gameId);
+    
+    // Execute domain logic
+    const result = game.executeMopai(command.playerId);
+    
+    if (result.isSuccess()) {
+      // Persist aggregate changes
+      await this.gameRepository.save(game);
+      
+      // Publish domain events for selective event-driven features
+      game.getUncommittedEvents().forEach(event => {
+        this.eventBus.publish(event);
+      });
+      
+      return GameCommandResult.success(result.getValue());
+    }
+    
+    return GameCommandResult.failure(result.getError());
+  }
+}
+
+// Query Handlers for CQRS-lite approach
+@Injectable()
+class GameQueryService {
+  constructor(private readonly gameRepository: IGameRepository) {}
+  
+  async getGameState(gameId: GameId): Promise<GameStateDTO> {
+    const game = await this.gameRepository.findById(gameId);
+    return this.mapToDTO(game);
+  }
+}
+```
+
+### 1.2 Frontend: Component-based + Redux Integration
+
+#### Redux Store Structure
+```typescript
+// Redux store mirrors domain model
+interface GameState {
+  gameId: string;
+  phase: 'WAITING' | 'DEALING' | 'PLAYING' | 'SCORING' | 'FINISHED';
+  currentPlayer: string;
+  players: Record<string, PlayerState>;
+  discardPile: Tile[];
+  remainingTiles: number;
+  lastAction?: GameAction;
+}
+
+// Redux actions map to domain commands
+interface MopaiAction {
+  type: 'game/mopai';
+  payload: {
+    playerId: string;
+    gameId: string;
+  };
+}
+
+interface DapaiAction {
+  type: 'game/dapai';
+  payload: {
+    playerId: string;
+    gameId: string;
+    tile: Tile;
+  };
+}
+
+// Redux slice with immutable updates using Immer
+const gameSlice = createSlice({
+  name: 'game',
+  initialState,
+  reducers: {
+    mopai: (state, action: PayloadAction<MopaiAction['payload']>) => {
+      const { playerId } = action.payload;
+      const player = state.players[playerId];
+      
+      // Immer handles immutable updates
+      player.handSize += 1;
+      state.lastAction = {
+        type: 'MOPAI',
+        playerId,
+        timestamp: Date.now()
+      };
+    },
+    
+    dapai: (state, action: PayloadAction<DapaiAction['payload']>) => {
+      const { playerId, tile } = action.payload;
+      const player = state.players[playerId];
+      
+      player.handSize -= 1;
+      state.discardPile.push(tile);
+      state.currentPlayer = getNextPlayer(state, playerId);
+    }
+  }
+});
+```
+
+#### React Component Architecture
+```typescript
+// Container Component (connects to Redux)
+const GameBoardContainer: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const gameState = useAppSelector(selectGameState);
+  const playerId = useAppSelector(selectCurrentPlayerId);
+  
+  // Command dispatchers
+  const gameCommands = useGameCommands();
+  
+  return (
+    <GameBoardPresentation 
+      gameState={gameState}
+      playerId={playerId}
+      onMopai={gameCommands.executeMopai}
+      onDapai={gameCommands.executeDapai}
+      onPengpai={gameCommands.executePengpai}
+      onHupai={gameCommands.executeHupai}
+    />
+  );
+};
+
+// Presentational Component (pure UI)
+interface GameBoardProps {
+  gameState: GameState;
+  playerId: string;
+  onMopai: () => void;
+  onDapai: (tile: Tile) => void;
+  onPengpai: (tiles: Tile[]) => void;
+  onHupai: () => void;
+}
+
+const GameBoardPresentation: React.FC<GameBoardProps> = React.memo(({
+  gameState,
+  playerId,
+  onMopai,
+  onDapai,
+  onPengpai,
+  onHupai
+}) => {
+  return (
+    <div className="game-board">
+      <PlayerHandComponent 
+        tiles={gameState.players[playerId].hand}
+        onTileClick={onDapai}
+        canDiscard={gameState.currentPlayer === playerId}
+      />
+      
+      <DiscardPileComponent 
+        tiles={gameState.discardPile}
+        onTileClick={onPengpai}
+      />
+      
+      <ActionButtonsComponent
+        availableActions={gameState.players[playerId].availableActions}
+        onMopai={onMopai}
+        onPengpai={() => {/* handle peng */}}
+        onHupai={onHupai}
+      />
+      
+      <ScoringPanelComponent 
+        currentScore={gameState.players[playerId].score}
+      />
+    </div>
+  );
+});
+
+// Reusable Taiwan Mahjong UI Components
+const MahjongTileComponent: React.FC<TileProps> = React.memo(({ 
+  tile, 
+  onClick, 
+  disabled = false 
+}) => {
+  return (
+    <button
+      className={`mahjong-tile tile-${tile.suit} tile-${tile.value}`}
+      onClick={() => onClick(tile)}
+      disabled={disabled}
+      aria-label={`${tile.display} tile`}
+    >
+      <span className="tile-display">{tile.display}</span>
+      {tile.isFlower && <span className="flower-indicator">🌸</span>}
+    </button>
+  );
+});
+
+// Custom hook for game commands
+const useGameCommands = () => {
+  const dispatch = useAppDispatch();
+  
+  return {
+    executeMopai: useCallback(() => {
+      dispatch(gameActions.mopai({ 
+        playerId: getCurrentPlayerId(), 
+        gameId: getCurrentGameId() 
+      }));
+    }, [dispatch]),
+    
+    executeDapai: useCallback((tile: Tile) => {
+      dispatch(gameActions.dapai({
+        playerId: getCurrentPlayerId(),
+        gameId: getCurrentGameId(),
+        tile
+      }));
+    }, [dispatch]),
+    
+    executePengpai: useCallback((targetTile: Tile) => {
+      dispatch(gameActions.pengpai({
+        playerId: getCurrentPlayerId(),
+        gameId: getCurrentGameId(),
+        targetTile
+      }));
+    }, [dispatch]),
+    
+    executeHupai: useCallback(() => {
+      dispatch(gameActions.hupai({
+        playerId: getCurrentPlayerId(),
+        gameId: getCurrentGameId()
+      }));
+    }, [dispatch])
+  };
+};
+```
+
+### 1.3 Integration Patterns
+
+#### Command Flow Integration
+```typescript
+// Frontend Redux middleware for command processing
+const commandMiddleware: Middleware = (store) => (next) => (action) => {
+  // Intercept game commands and send to backend
+  if (action.type.startsWith('game/')) {
+    // Create secure command for backend
+    const secureCommand = createSecureCommand(action);
+    
+    // Send to backend via WebSocket
+    webSocketService.sendCommand(secureCommand)
+      .then((response) => {
+        if (response.success) {
+          // Update Redux state with server response
+          store.dispatch(updateGameState(response.gameState));
+        } else {
+          // Handle command failure
+          store.dispatch(showError(response.error));
+        }
+      })
+      .catch((error) => {
+        store.dispatch(showError('Network error'));
+      });
+  }
+  
+  return next(action);
+};
+
+// Backend WebSocket handler
+@WebSocketGateway()
+class GameWebSocketGateway {
+  constructor(
+    private readonly commandService: GameCommandService,
+    private readonly queryService: GameQueryService
+  ) {}
+  
+  @SubscribeMessage('game-command')
+  async handleGameCommand(
+    @MessageBody() secureCommand: SecureCommand,
+    @ConnectedSocket() client: Socket
+  ): Promise<void> {
+    
+    // Verify command signature
+    const validation = await this.securityService.verifyCommand(secureCommand);
+    if (!validation.valid) {
+      client.emit('command-error', { error: validation.reason });
+      return;
+    }
+    
+    // Convert to application command
+    const command = this.mapToApplicationCommand(validation.command);
+    
+    // Execute via Application Service
+    const result = await this.commandService.executeCommand(command);
+    
+    // Send response back to client
+    client.emit('command-result', {
+      success: result.isSuccess(),
+      gameState: result.isSuccess() ? 
+        await this.queryService.getGameState(command.gameId) : 
+        null,
+      error: result.isSuccess() ? null : result.getError()
+    });
+    
+    // Broadcast to room if successful
+    if (result.isSuccess()) {
+      client.to(command.gameId).emit('game-update', {
+        gameState: await this.queryService.getGameState(command.gameId),
+        lastAction: command
+      });
+    }
+  }
+}
+```
+
+### 1.4 Methodology Benefits Integration
+
+**Domain Expressiveness:**
+- DDD entities and value objects naturally represent Taiwan Mahjong concepts
+- Ubiquitous language preserved in both frontend and backend code
+- Business rules properly encapsulated and consistently applied
+
+**Type Safety:**
+```typescript
+// Shared type definitions
+interface SharedGameTypes {
+  // Commands
+  MopaiCommand: {
+    type: 'MOPAI';
+    playerId: string;
+    gameId: string;
+  };
+  
+  // Events  
+  TileDrawnEvent: {
+    type: 'TILE_DRAWN';
+    playerId: string;
+    tile: Tile;
+    gameId: string;
+  };
+  
+  // State
+  GameState: {
+    gameId: string;
+    phase: GamePhase;
+    players: Record<string, PlayerState>;
+    // ...
+  };
+}
+```
+
+**Performance Optimization:**
+- Redux memoization prevents unnecessary re-renders
+- DDD aggregates minimize database round trips  
+- Clean Architecture enables optimized query paths
+- Component-based architecture supports code splitting
+
+---
+
+## 2. Pattern Usage Guidelines with Methodology Context
 
 ### When to Use Each Pattern
 
