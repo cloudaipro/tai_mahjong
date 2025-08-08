@@ -13,12 +13,14 @@ This document provides comprehensive implementation guidelines for the hybrid ar
 
 ## Architecture Decision Summary
 
-Based on **ADR-001-hybrid-architecture-decision**, we use different patterns for different concerns:
+Based on **ADR-001-hybrid-architecture-decision** and **ADR-002-collaborative-architecture-security-performance**, we use different patterns for different concerns with enhanced security and performance requirements:
 
-- **Command Pattern**: Game actions (摸牌, 打牌, 吃碰槓胡)
-- **State Machines**: Game flow and room lifecycle  
-- **Request-Response**: Real-time player interactions
+- **Command Pattern**: Game actions (摸牌, 打牌, 吃碰槓胡) with cryptographic signing
+- **State Machines**: Game flow and room lifecycle with integrity validation
+- **Request-Response**: Real-time player interactions (<70ms target)
 - **Selective Event-Driven**: Non-critical operations (chat, analytics, notifications)
+- **Security Layer**: ECDSA digital signatures, server-side validation, anti-cheat ML
+- **Performance Layer**: Multi-level caching, binary protocols, database optimization
 
 ---
 
@@ -28,12 +30,12 @@ Based on **ADR-001-hybrid-architecture-decision**, we use different patterns for
 
 | Scenario | Pattern | Rationale | Example |
 |----------|---------|-----------|---------|
-| Taiwan Mahjong game actions | Command Pattern | Deterministic, serializable, replay-able | 摸牌, 打牌, 碰牌, 槓牌, 胡牌 |
-| Game state transitions | State Machine | Prevents invalid states, clear flow | 發牌→進行→結算 |
-| Immediate player responses | Request-Response | Low latency, predictable | Score calculation, move validation |
-| Background processing | Event-Driven | Non-blocking, loose coupling | Chat messages, analytics |
-| Room lifecycle | State Machine | Controlled transitions | Created→Waiting→Playing→Finished |
-| User authentication | Request-Response | Synchronous validation | Login, profile updates |
+| Taiwan Mahjong game actions | Command Pattern + Security | Deterministic, signed, server-validated | 摸牌, 打牌, 碰牌, 槓牌, 胡牌 |
+| Game state transitions | State Machine + Integrity | Prevents invalid states, tamper-proof | 發牌→進行→結算 |
+| Immediate player responses | Request-Response + Cache | <70ms latency, predictable | Score calculation, move validation |
+| Background processing | Event-Driven + Monitoring | Non-blocking, audited | Chat messages, analytics |
+| Room lifecycle | State Machine + Security | Controlled transitions, access control | Created→Waiting→Playing→Finished |
+| User authentication | Request-Response + MFA | Multi-factor validation | Login, JWT tokens, profile updates |
 
 ### Pattern Selection Flowchart
 
@@ -633,6 +635,304 @@ class OptimizedCommandProcessor {
       default:
         return this.standardExecution(command, state);
     }
+  }
+}
+```
+
+---
+
+## 7.5. Security Implementation Guidelines (Collaborative Enhancement)
+
+### 7.5.1 Cryptographic Command Signing
+
+All Taiwan Mahjong game commands must be cryptographically signed:
+
+```typescript
+// Secure Command Implementation
+import { webcrypto } from 'crypto';
+
+class SecureCommandProcessor {
+  private signingKey: CryptoKey;
+  private verificationKey: CryptoKey;
+  
+  constructor() {
+    this.initializeKeys();
+  }
+  
+  private async initializeKeys(): Promise<void> {
+    const keyPair = await webcrypto.subtle.generateKey(
+      {
+        name: 'ECDSA',
+        namedCurve: 'P-384'  // Strong elliptic curve
+      },
+      true,
+      ['sign', 'verify']
+    );
+    
+    this.signingKey = keyPair.privateKey;
+    this.verificationKey = keyPair.publicKey;
+  }
+  
+  // Sign command with anti-replay protection
+  async signCommand(command: GameCommand, playerId: string): Promise<SecureCommand> {
+    const timestamp = Date.now();
+    const nonce = webcrypto.getRandomValues(new Uint8Array(16));
+    
+    const payload = {
+      ...command,
+      playerId,
+      timestamp,
+      nonce: Array.from(nonce)
+    };
+    
+    const signature = await webcrypto.subtle.sign(
+      { name: 'ECDSA', hash: 'SHA-384' },
+      this.signingKey,
+      new TextEncoder().encode(JSON.stringify(payload))
+    );
+    
+    return {
+      payload,
+      signature: Array.from(new Uint8Array(signature))
+    };
+  }
+  
+  // Verify command integrity and freshness
+  async verifyCommand(secureCommand: SecureCommand): Promise<ValidationResult> {
+    const { payload, signature } = secureCommand;
+    
+    // Check timestamp (prevent replay attacks)
+    const now = Date.now();
+    if (now - payload.timestamp > 30000) { // 30 second window
+      return { valid: false, reason: 'Command expired' };
+    }
+    
+    // Check if command already processed (nonce tracking)
+    if (await this.isNonceUsed(payload.nonce)) {
+      return { valid: false, reason: 'Replay attack detected' };
+    }
+    
+    // Verify cryptographic signature
+    const isValid = await webcrypto.subtle.verify(
+      { name: 'ECDSA', hash: 'SHA-384' },
+      this.verificationKey,
+      new Uint8Array(signature),
+      new TextEncoder().encode(JSON.stringify(payload))
+    );
+    
+    if (!isValid) {
+      return { valid: false, reason: 'Invalid signature' };
+    }
+    
+    // Store nonce to prevent reuse
+    await this.markNonceUsed(payload.nonce);
+    
+    return { valid: true, command: payload };
+  }
+}
+```
+
+### 7.5.2 Server-Side Validation Framework
+
+All game rules must be validated on the server:
+
+```typescript
+// Taiwan Mahjong Rule Validator
+class TaiwanMahjongValidator {
+  // Validate 摸牌 (draw tile) action
+  validateDrawTile(gameState: GameState, playerId: string): ValidationResult {
+    // Check if it's player's turn
+    if (gameState.currentPlayer !== playerId) {
+      return { valid: false, reason: 'Not player\'s turn' };
+    }
+    
+    // Check if draw is allowed in current phase
+    if (gameState.phase !== GamePhase.PLAYING) {
+      return { valid: false, reason: 'Cannot draw in current phase' };
+    }
+    
+    // Check if player already has 16 tiles (max hand size)
+    const playerHand = gameState.players[playerId].hand;
+    if (playerHand.length >= 16) {
+      return { valid: false, reason: 'Hand already full' };
+    }
+    
+    // Check if tiles available in wall
+    if (gameState.wall.length === 0) {
+      return { valid: false, reason: 'No tiles left in wall' };
+    }
+    
+    return { valid: true };
+  }
+  
+  // Validate 胡牌 (win) action with complete rule checking
+  validateWin(gameState: GameState, playerId: string): ValidationResult {
+    const playerHand = gameState.players[playerId].hand;
+    const exposedSets = gameState.players[playerId].exposedSets;
+    
+    // Check basic winning pattern (4 sets + 1 pair)
+    const winningPattern = this.analyzeWinningPattern(playerHand, exposedSets);
+    if (!winningPattern.isWinning) {
+      return { valid: false, reason: 'Invalid winning hand' };
+    }
+    
+    // Taiwan-specific rule validation
+    const taiwanValidation = this.validateTaiwanWinning(
+      playerHand, 
+      exposedSets, 
+      gameState.lastDiscard,
+      gameState.flowerTiles[playerId]
+    );
+    
+    if (!taiwanValidation.valid) {
+      return taiwanValidation;
+    }
+    
+    return { valid: true, winningPattern, taiwanScore: taiwanValidation.score };
+  }
+}
+```
+
+### 7.5.3 Anti-Cheat ML System
+
+Behavioral anomaly detection for suspicious patterns:
+
+```typescript
+// Anti-Cheat Behavioral Analysis
+class AntiCheatMLAnalyzer {
+  private suspiciousPatterns = new Map<string, number>();
+  
+  async analyzePlayerBehavior(
+    playerId: string, 
+    action: GameAction, 
+    gameState: GameState
+  ): Promise<CheatAnalysis> {
+    
+    const features = this.extractBehavioralFeatures(action, gameState);
+    
+    // Statistical analysis
+    const stats = await this.analyzeActionTiming(playerId, action);
+    const patterns = await this.analyzeDecisionPatterns(playerId, action);
+    
+    // ML-based anomaly detection
+    const anomalyScore = await this.runAnomalyDetection(features);
+    
+    // Taiwan Mahjong specific cheat detection
+    const taiwanCheats = await this.detectTaiwanMahjongCheats(
+      playerId, 
+      action, 
+      gameState
+    );
+    
+    const suspiciousScore = Math.max(anomalyScore, taiwanCheats.score);
+    
+    if (suspiciousScore > 0.8) {
+      await this.flagSuspiciousPlayer(playerId, {
+        action,
+        suspiciousScore,
+        reason: taiwanCheats.reasons,
+        timestamp: Date.now()
+      });
+    }
+    
+    return {
+      playerId,
+      suspiciousScore,
+      isBlocked: suspiciousScore > 0.95,
+      analysis: {
+        timing: stats,
+        patterns,
+        anomalies: anomalyScore,
+        taiwanSpecific: taiwanCheats
+      }
+    };
+  }
+  
+  // Detect Taiwan Mahjong specific cheating patterns
+  private async detectTaiwanMahjongCheats(
+    playerId: string,
+    action: GameAction,
+    gameState: GameState
+  ): Promise<TaiwanCheatAnalysis> {
+    
+    const cheats = [];
+    let maxScore = 0;
+    
+    // Check for impossible tile knowledge
+    if (this.detectImpossibleTileKnowledge(action, gameState)) {
+      cheats.push('Impossible tile knowledge');
+      maxScore = Math.max(maxScore, 0.9);
+    }
+    
+    // Check for perfect scoring predictions
+    if (this.detectPerfectScoringPredictions(playerId, gameState)) {
+      cheats.push('Perfect scoring predictions');
+      maxScore = Math.max(maxScore, 0.85);
+    }
+    
+    // Check for flower tile manipulation
+    if (this.detectFlowerTileManipulation(playerId, gameState)) {
+      cheats.push('Flower tile manipulation');
+      maxScore = Math.max(maxScore, 0.8);
+    }
+    
+    return { score: maxScore, reasons: cheats };
+  }
+}
+```
+
+### 7.5.4 End-to-End Encryption Implementation
+
+WebSocket communications with TLS 1.3:
+
+```typescript
+// Secure WebSocket Implementation
+class SecureWebSocketManager {
+  private connections = new Map<string, WebSocket>();
+  
+  async createSecureConnection(
+    playerId: string, 
+    roomId: string
+  ): Promise<WebSocket> {
+    
+    const wsUrl = `wss://${process.env.GAME_SERVER_HOST}/game/${roomId}`;
+    
+    const ws = new WebSocket(wsUrl, {
+      // Force TLS 1.3
+      minVersion: 'TLSv1.3',
+      maxVersion: 'TLSv1.3',
+      
+      // Certificate validation
+      rejectUnauthorized: true,
+      
+      // Additional security headers
+      headers: {
+        'Sec-WebSocket-Protocol': 'taiwan-mahjong-v1',
+        'Authorization': `Bearer ${await this.generateSecureToken(playerId)}`,
+        'X-Player-ID': playerId,
+        'X-Room-ID': roomId
+      }
+    });
+    
+    // Message encryption layer
+    ws.on('message', (encryptedData) => {
+      this.handleEncryptedMessage(playerId, encryptedData);
+    });
+    
+    this.connections.set(playerId, ws);
+    return ws;
+  }
+  
+  async sendEncryptedMessage(
+    playerId: string, 
+    message: GameMessage
+  ): Promise<void> {
+    const ws = this.connections.get(playerId);
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    
+    // Encrypt message before sending
+    const encryptedMessage = await this.encryptMessage(message, playerId);
+    ws.send(encryptedMessage);
   }
 }
 ```
