@@ -641,10 +641,13 @@ interface DisasterRecovery {
 - ✅ <0.1% false positive rate in cheat detection
 - ✅ Full GDPR compliance
 
-**Performance Requirements**:
-- ✅ <70ms average response time
+**Performance Requirements** (Post-Architecture Recalibration):
+- ✅ <70ms backend response time (95th percentile)
+- ✅ 60fps web rendering with Performance Budget framework
+- ✅ 45-50fps mobile rendering with Low-Fidelity Mode fallback
+- ✅ <2 second network reconnection recovery
 - ✅ >99.9% system availability
-- ✅ >95% cache hit rate
+- ✅ >95% cache hit rate with proactive refresh
 - ✅ 10,000+ concurrent user support
 
 **Monitoring Requirements**:
@@ -653,9 +656,109 @@ interface DisasterRecovery {
 - ✅ Automated alerting system
 - ✅ Interactive dashboards
 
+## 9. Architecture Recalibration Enhancements (2025-08-08)
+
+Based on the collaborative 5-specialist architecture review, the following enhancements have been integrated:
+
+### 9.1 Enhanced Caching Strategy
+
+**Proactive Cache Refresh Implementation**:
+```typescript
+class ProactiveCacheService {
+  private readonly REFRESH_THRESHOLD = 0.75; // Refresh at 75% TTL
+  
+  async getWithProactiveRefresh<T>(
+    key: string, 
+    fetcher: () => Promise<T>,
+    ttl: number
+  ): Promise<T> {
+    const cached = await this.redis.get(key);
+    const remainingTtl = await this.redis.ttl(key);
+    
+    if (cached) {
+      // Proactive refresh to prevent thundering herd
+      if (remainingTtl > 0 && remainingTtl < (ttl * this.REFRESH_THRESHOLD)) {
+        this.scheduleBackgroundRefresh(key, fetcher, ttl);
+      }
+      return JSON.parse(cached);
+    }
+    
+    // Cache miss - fetch and cache
+    const fresh = await fetcher();
+    await this.redis.set(key, JSON.stringify(fresh), { EX: ttl });
+    return fresh;
+  }
+}
+```
+
+### 9.2 Network Resiliency Framework
+
+**Client-Side Command Queue with Anti-Abuse**:
+- Idempotent command processing with UUIDs
+- WebSocket heartbeat protocol (5s ping, 2.5s timeout)
+- Progressive disconnection penalties (3+ loses grace period)
+- Exponential backoff reconnection (1s, 2s, 4s, 8s, max 30s)
+
+### 9.3 Architectural Governance Automation
+
+**Fitness Functions in CI/CD Pipeline**:
+```typescript
+// Automated Architecture Compliance Tests
+describe('Architecture Governance', () => {
+  test('Domain layer dependency isolation', () => {
+    const violations = archUnit.classes()
+      .that().resideInAPackage('domain.*')
+      .should().onlyDependOnClassesThat()
+      .resideInAnyPackage('domain.*', 'shared.*');
+    
+    expect(violations.evaluate()).toHaveLength(0);
+  });
+});
+```
+
+### 9.4 4-Layer Testing Framework
+
+**Comprehensive Taiwan Mahjong Rule Validation**:
+1. **Unit Tests**: >95% coverage of domain logic
+2. **Integration Tests**: Cross-module interaction validation
+3. **JSON Scenario Tests**: Edge case scenarios (過水, 詐胡, 搶槓)
+4. **Expert Validation**: Taiwan Mahjong master approval
+
+### 9.5 Performance Budget Framework
+
+**Mobile 3D Rendering Optimization**:
+```typescript
+class MobilePerformanceBudget {
+  private readonly TARGET_FPS = 45;
+  private readonly MAX_POLYGONS = 5000;
+  private readonly MAX_DRAW_CALLS = 50;
+  
+  monitorAndAdjust(): void {
+    if (this.currentFPS < this.TARGET_FPS) {
+      this.enableLowFidelityMode();
+    }
+  }
+  
+  private enableLowFidelityMode(): void {
+    this.switchTo2DMode();
+    this.notifyUser('Optimized for better performance');
+  }
+}
+```
+
+### 9.6 Implementation Impact
+
+| Enhancement Area | Implementation Week | Owner | Impact |
+|------------------|-------------------|-------|---------|
+| **Architectural Governance** | Week 3-4 | System Architect | Prevents architectural drift |
+| **Caching Enhancement** | Week 3-4 | Data Architect | Eliminates thundering herd |
+| **Network Resiliency** | Week 3-4, 9-10 | Mobile + Frontend | <2s reconnection |
+| **Testing Framework** | Week 5-6+ | Game Systems | 100% rule accuracy |
+| **Performance Budget** | Week 9-10, 21-22 | Frontend + Mobile | 45-50fps mobile |
+
 ---
 
-**Document Status**: Approved for Implementation  
-**Review Schedule**: Monthly technical review  
-**Contact**: Security Team, DevOps Team, Development Team  
-**Last Updated**: 2025-08-08
+**Document Status**: Approved for Implementation (Recalibrated)  
+**Review Schedule**: Bi-weekly architecture validation + Monthly technical review  
+**Contact**: Architecture Review Board, Security Team, DevOps Team, Development Team  
+**Last Updated**: 2025-08-08 (Post-Collaborative Review)

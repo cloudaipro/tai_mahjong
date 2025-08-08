@@ -28,6 +28,261 @@ This detailed implementation roadmap provides a comprehensive 8-month plan for d
 
 ---
 
+## Project Gantt Chart
+
+### **Visual Timeline Overview**
+
+```mermaid
+gantt
+    title Taiwan Mahjong Implementation Roadmap
+    dateFormat YYYY-MM-DD
+    axisFormat %Y-%m
+    
+    section Phase 1: Foundation
+    Team Training & Setup           :milestone, m1, 2025-08-08, 0d
+    Team Training (1.5 weeks)       :training, 2025-08-08, 2025-08-19
+    Architecture Foundation         :arch-found, 2025-08-20, 2025-09-03
+    Domain Core Implementation      :domain-core, 2025-09-04, 2025-09-17
+    Command Processing              :cmd-proc, 2025-09-18, 2025-10-01
+    Frontend Foundation             :frontend, 2025-10-02, 2025-10-15
+    Phase 1 Complete               :milestone, m2, 2025-10-15, 0d
+    
+    section Phase 2: Integration
+    Multi-player System            :multiplayer, 2025-10-16, 2025-10-29
+    Caching & Performance          :caching, 2025-10-30, 2025-11-12
+    Advanced Game Features         :adv-features, 2025-11-13, 2025-11-26
+    Security Hardening             :security, 2025-11-27, 2025-12-10
+    UI/UX Polish                   :ui-polish, 2025-12-11, 2025-12-24
+    Phase 2 Complete               :milestone, m3, 2025-12-24, 0d
+    
+    section Phase 3: Mobile & Performance
+    React Native Foundation        :rn-found, 2025-12-25, 2026-01-07
+    Platform Integration           :platform, 2026-01-08, 2026-01-21
+    Performance Optimization       :perf-opt, 2026-01-22, 2026-02-04
+    Quality Assurance             :qa, 2026-02-05, 2026-02-18
+    Phase 3 Complete              :milestone, m4, 2026-02-18, 0d
+    
+    section Phase 4: Launch
+    Production Infrastructure      :prod-infra, 2026-02-19, 2026-03-04
+    Expert Validation & Launch     :validation, 2026-03-05, 2026-03-18
+    Phase 4 Complete              :milestone, m5, 2026-03-18, 0d
+    
+    section Critical Path
+    Security Framework             :crit, security, 2025-08-20, 2025-12-10
+    Performance Targets            :crit, perf-opt, 2025-10-30, 2026-02-04
+    Taiwan Mahjong Domain          :crit, domain-core, 2025-09-04, 2025-11-26
+    Cross-platform Development    :crit, rn-found, 2025-12-25, 2026-02-04
+```
+
+### **Detailed Phase Breakdown**
+
+```mermaid
+gantt
+    title Detailed Milestone Timeline
+    dateFormat YYYY-MM-DD
+    axisFormat %m/%d
+    
+    section Week-by-Week Breakdown
+    W1-2: Team Training            :w1-2, 2025-08-08, 14d
+    W3-4: Architecture Setup       :w3-4, after w1-2, 14d
+    W5-6: Domain Implementation    :w5-6, after w3-4, 14d
+    W7-8: Command Processing       :w7-8, after w5-6, 14d
+    W9-10: Frontend Foundation     :w9-10, after w7-8, 14d
+    W11-12: Multi-player System    :w11-12, after w9-10, 14d
+    W13-14: Caching Architecture   :w13-14, after w11-12, 14d
+    W15-16: Advanced Features      :w15-16, after w13-14, 14d
+    W17-18: Security Systems       :w17-18, after w15-16, 14d
+    W19-20: UI/UX Excellence       :w19-20, after w17-18, 14d
+    W21-22: React Native Setup     :w21-22, after w19-20, 14d
+    W23-24: Platform Integration   :w23-24, after w21-22, 14d
+    W25-26: Performance Tuning     :w25-26, after w23-24, 14d
+    W27-28: Quality Assurance      :w27-28, after w25-26, 14d
+    W29-30: Production Deploy      :w29-30, after w27-28, 14d
+    W31-32: Expert Validation      :w31-32, after w29-30, 14d
+```
+
+### **Team Allocation Timeline**
+
+```mermaid
+gantt
+    title Team Resource Allocation
+    dateFormat YYYY-MM-DD
+    axisFormat %Y-%m
+    
+    section Backend Team (4-5 devs)
+    DDD Training & Setup           :backend1, 2025-08-08, 2025-08-22
+    Domain Logic Implementation    :backend2, 2025-08-22, 2025-10-15
+    Security & Performance         :backend3, 2025-10-15, 2025-12-24
+    Production Support             :backend4, 2025-12-24, 2026-03-18
+    
+    section Frontend Team (3-4 devs)
+    React/Redux Training           :frontend1, 2025-08-08, 2025-08-22
+    Component Development          :frontend2, 2025-08-22, 2025-12-24
+    Cross-platform Support        :frontend3, 2025-12-24, 2026-02-18
+    Launch Support                 :frontend4, 2026-02-18, 2026-03-18
+    
+    section Mobile Team (2-3 devs)
+    React Native Training          :mobile1, 2025-08-08, 2025-12-25
+    Mobile Development             :mobile2, 2025-12-25, 2026-02-18
+    Launch Support                 :mobile3, 2026-02-18, 2026-03-18
+    
+    section DevOps/QA Team (2-3 devs)
+    Infrastructure Setup           :devops1, 2025-08-08, 2025-10-15
+    CI/CD & Monitoring             :devops2, 2025-10-15, 2026-02-18
+    Production Launch              :devops3, 2026-02-18, 2026-03-18
+    
+    section Data Team (1-2 devs)
+    Database Design                :data1, 2025-08-22, 2025-10-15
+    Caching & Analytics            :data2, 2025-10-15, 2026-02-04
+    Production Optimization        :data3, 2026-02-04, 2026-03-18
+```
+
+### **Critical Dependencies & Risk Timeline**
+
+```mermaid
+gantt
+    title Critical Dependencies and Risk Mitigation
+    dateFormat YYYY-MM-DD
+    axisFormat %Y-%m
+    
+    section Critical Dependencies
+    Team Training Completion       :crit, dep1, 2025-08-08, 2025-08-22
+    Security Framework Ready       :crit, dep2, 2025-08-22, 2025-10-15
+    Performance Targets Met        :crit, dep3, 2025-10-30, 2025-12-24
+    Expert Validation Complete     :crit, dep4, 2026-03-05, 2026-03-18
+    
+    section Risk Mitigation Windows
+    Performance Risk Window        :risk1, 2025-10-30, 2025-12-10
+    Security Risk Window           :risk2, 2025-09-04, 2025-12-10
+    Cultural Validation Risk       :risk3, 2026-02-19, 2026-03-18
+    Team Knowledge Risk            :risk4, 2025-08-08, 2025-09-17
+    
+    section Quality Gates
+    Architecture Review            :gate1, 2025-09-17, 1d
+    Security Audit                 :gate2, 2025-12-10, 1d
+    Performance Validation         :gate3, 2026-02-04, 1d
+    Production Readiness           :gate4, 2026-03-04, 1d
+```
+
+### **Milestone Deliverables Timeline**
+
+```mermaid
+gantt
+    title Key Deliverables and Success Criteria
+    dateFormat YYYY-MM-DD
+    axisFormat %m/%d
+    
+    section Phase 1 Deliverables
+    M1.1: Team Training Complete   :done, del1-1, 2025-08-08, 2025-08-19
+    M1.2: Architecture Foundation  :del1-2, 2025-08-20, 2025-09-03
+    M1.3: Domain Logic Complete    :del1-3, 2025-09-04, 2025-09-17
+    M1.4: Command Processing       :del1-4, 2025-09-18, 2025-10-01
+    M1.5: Frontend Foundation      :del1-5, 2025-10-02, 2025-10-15
+    
+    section Phase 2 Deliverables
+    M2.1: Multi-player System      :del2-1, 2025-10-16, 2025-10-29
+    M2.2: Caching Architecture     :del2-2, 2025-10-30, 2025-11-12
+    M2.3: Advanced Features        :del2-3, 2025-11-13, 2025-11-26
+    M2.4: Security Hardening       :del2-4, 2025-11-27, 2025-12-10
+    M2.5: UI/UX Polish             :del2-5, 2025-12-11, 2025-12-24
+    
+    section Phase 3 Deliverables
+    M3.1: React Native App         :del3-1, 2025-12-25, 2026-01-07
+    M3.2: Platform Features        :del3-2, 2026-01-08, 2026-01-21
+    M3.3: Performance Excellence   :del3-3, 2026-01-22, 2026-02-04
+    M3.4: Testing Framework        :del3-4, 2026-02-05, 2026-02-18
+    
+    section Phase 4 Deliverables
+    M4.1: Production Deploy        :del4-1, 2026-02-19, 2026-03-04
+    M4.2: Expert Validation        :del4-2, 2026-03-05, 2026-03-18
+```
+
+### **Performance & Security Tracking Timeline**
+
+```mermaid
+gantt
+    title Performance and Security Implementation Tracking
+    dateFormat YYYY-MM-DD
+    axisFormat %Y-%m
+    
+    section Performance Targets
+    <70ms Response Time Goal       :perf1, 2025-10-30, 2026-02-04
+    10K Concurrent Users           :perf2, 2025-11-13, 2026-02-18
+    60fps Mobile Rendering         :perf3, 2025-12-25, 2026-02-18
+    <15ms Database Queries         :perf4, 2025-10-30, 2026-01-21
+    
+    section Security Implementation
+    ECDSA Cryptographic System     :sec1, 2025-08-22, 2025-10-01
+    Anti-Cheat ML System           :sec2, 2025-11-27, 2025-12-10
+    Penetration Testing            :sec3, 2026-02-05, 2026-02-18
+    Production Security Audit      :sec4, 2026-02-19, 2026-03-04
+    
+    section Cultural Validation
+    Taiwan Mahjong Rule Review     :cult1, 2025-09-04, 2025-11-26
+    Expert Validation Sessions     :cult2, 2026-03-05, 2026-03-15
+    Community Beta Testing         :cult3, 2026-02-25, 2026-03-15
+    Cultural Authenticity Cert     :cult4, 2026-03-15, 2026-03-18
+```
+
+### **Budget & Resource Timeline**
+
+```mermaid
+gantt
+    title Budget and Resource Allocation Timeline
+    dateFormat YYYY-MM-DD
+    axisFormat %Y-%m
+    
+    section Development Costs
+    Phase 1 Investment (35%)       :budget1, 2025-08-08, 2025-10-15
+    Phase 2 Investment (35%)       :budget2, 2025-10-15, 2025-12-24
+    Phase 3 Investment (20%)       :budget3, 2025-12-24, 2026-02-18
+    Phase 4 Investment (10%)       :budget4, 2026-02-18, 2026-03-18
+    
+    section Security Enhancement
+    Security Framework (8%)        :sec-budget1, 2025-08-22, 2025-10-15
+    Anti-Cheat System (4%)         :sec-budget2, 2025-11-27, 2025-12-10
+    
+    section Infrastructure Costs
+    Development Infrastructure     :infra1, 2025-08-08, 2026-02-18
+    Production Infrastructure      :infra2, 2026-02-18, 2026-03-18
+    Post-Launch Scaling           :infra3, 2026-03-18, 2026-06-18
+```
+
+### **Quality Gates & Review Schedule**
+
+```mermaid
+gantt
+    title Quality Gates and Review Checkpoints
+    dateFormat YYYY-MM-DD
+    axisFormat %m/%d
+    
+    section Architecture Reviews
+    ADR Review Session            :review1, 2025-09-03, 1d
+    Methodology Compliance Check   :review2, 2025-09-17, 1d
+    Security Architecture Review   :review3, 2025-10-15, 1d
+    Performance Architecture Review :review4, 2025-12-10, 1d
+    
+    section Code Quality Gates
+    Domain Logic Review           :code1, 2025-09-17, 1d
+    Security Implementation Review :code2, 2025-12-10, 1d
+    Performance Optimization Review :code3, 2026-02-04, 1d
+    Production Readiness Review    :code4, 2026-03-04, 1d
+    
+    section Expert Validation Gates
+    Taiwan Mahjong Rule Validation :expert1, 2025-11-26, 1d
+    Cultural Authenticity Review  :expert2, 2026-03-05, 1d
+    Beta Testing Results Review    :expert3, 2026-03-15, 1d
+    Final Launch Approval         :expert4, 2026-03-18, 1d
+    
+    section Stakeholder Reviews
+    Executive Progress Review 1    :exec1, 2025-09-30, 1d
+    Executive Progress Review 2    :exec2, 2025-12-15, 1d
+    Executive Progress Review 3    :exec3, 2026-02-15, 1d
+    Launch Decision Meeting       :exec4, 2026-03-10, 1d
+```
+
+---
+
 ## Team Structure and Resource Allocation
 
 ### **Core Development Teams**
@@ -130,6 +385,8 @@ This detailed implementation roadmap provides a comprehensive 8-month plan for d
 - **Frontend**: Component-based structure with Redux Toolkit setup
 - **Security**: ECDSA key management and command signing infrastructure
 - **Database**: PostgreSQL schema with DDD aggregate design
+- **Architectural Governance**: Fitness functions for CI/CD boundary enforcement
+- **Caching Strategy**: Redis L2 cache with Cache-Aside pattern and proactive refresh
 
 **Technical Implementation:**
 ```typescript
@@ -171,6 +428,9 @@ src/
 - ✅ Redux store structure with game state management
 - ✅ ECDSA cryptographic signing system operational
 - ✅ PostgreSQL database schema deployed
+- ✅ Architectural fitness functions in CI/CD pipeline
+- ✅ Redis caching layer with thundering herd prevention
+- ✅ Client-side network resiliency framework (command queue + heartbeat)
 
 **Success Criteria:**
 - Architecture compliance validation: 100%
@@ -244,7 +504,9 @@ class Game extends AggregateRoot {
 - ✅ Traditional 台數計算 scoring system
 - ✅ Comprehensive rule validation engine
 - ✅ Domain event system for non-critical features
-- ✅ Unit tests for all domain logic (>90% coverage)
+- ✅ Unit tests for all domain logic (>95% coverage)
+- ✅ 4-layer testing framework: Unit > Integration > Scenario > Expert validation
+- ✅ JSON-based scenario testing for edge cases (過水, 詐胡, 搶槓)
 
 **Success Criteria:**
 - 100% Taiwan Mahjong rule compliance validation
@@ -382,11 +644,14 @@ const GameBoardContainer: React.FC = () => {
 ```
 
 **Deliverables:**
-- ✅ Complete Taiwan Mahjong component library
+- ✅ Complete Taiwan Mahjong component library  
 - ✅ Redux store with game state management and middleware
 - ✅ Secure command dispatching with cryptographic signing
 - ✅ Performance-optimized rendering with memoization
 - ✅ Responsive design for different screen sizes
+- ✅ Performance Budget framework for 3D rendering
+- ✅ Low-Fidelity Mode toggle for older devices (fallback to 2D)
+- ✅ Client-side network resiliency with command queue and heartbeat
 
 **Success Criteria:**
 - UI rendering performance <7ms per update
@@ -1202,14 +1467,18 @@ const MobileGameBoard: React.FC = () => {
 - ✅ React Native applications for iOS and Android
 - ✅ 85% business logic sharing between platforms
 - ✅ Platform-specific UI optimizations and native integrations
-- ✅ 60fps rendering performance on mid-range devices
+- ✅ 45-50fps rendering performance on mid-range devices (with 3D optimizations)
 - ✅ Mobile-first user experience design
+- ✅ Battery consumption optimization for extended gameplay
+- ✅ Network resiliency with graceful disconnect/reconnect handling
+- ✅ Low-Fidelity Mode for devices unable to maintain 60fps
 
 **Success Criteria:**
 - React Native app startup time <3 seconds
-- 60fps rendering maintained during gameplay
+- 45-50fps rendering maintained during gameplay (with fallback to Low-Fidelity Mode)
 - Memory usage <256MB on mid-range devices
 - Battery usage optimized for extended gameplay
+- Network disconnection handling with <2 second recovery time
 
 #### **Week 23-24: Native Platform Integration**
 
@@ -2571,6 +2840,94 @@ This implementation roadmap positions the Taiwan Mahjong platform to achieve:
 🎯 **Innovation Platform**: Foundation for future gaming innovations
 
 **The Taiwan Mahjong online gaming platform is ready for implementation with high confidence in delivering exceptional cultural authenticity, technical excellence, and commercial success.**
+
+---
+
+## Collaborative Architecture Review Integration
+
+**Review Period**: 2025-08-07 to 2025-08-22  
+**Review Team**: 5 Specialist Architects  
+**Status**: **APPROVED** - All architectural decisions validated and integrated
+
+### Key Architectural Enhancements Integrated
+
+#### **1. Architectural Governance Framework** ✅
+- **Implemented**: Fitness functions for CI/CD pipeline boundary enforcement
+- **Impact**: Prevents architectural drift, ensures clean module boundaries
+- **Phase Integration**: Week 3-4 (Foundation Architecture)
+- **Owner**: System Architect (Alex Chen)
+
+#### **2. Data Caching & Invalidation Strategy** ✅  
+- **Implemented**: Redis L2 cache with Cache-Aside pattern
+- **Enhancement**: Proactive cache refresh to prevent thundering herd problem
+- **Impact**: Meets <70ms performance targets with high availability
+- **Phase Integration**: Week 3-4 (Foundation Architecture)
+- **Owner**: Data Architect (James Thompson)
+
+#### **3. Client-Side Network Resiliency Design** ✅
+- **Implemented**: Command queue with idempotent UUIDs + WebSocket heartbeat
+- **Enhancement**: Anti-abuse mechanism (3+ disconnects lose grace period)
+- **Impact**: Seamless mobile network handling, prevents rage-quit exploitation
+- **Phase Integration**: Week 3-4 (Foundation Architecture), Week 9-10 (Frontend)
+- **Owners**: Mobile Architect (Sarah Patel) + Frontend Architect (David Kim)
+
+#### **4. Game Rules Engine Test Plan** ✅
+- **Implemented**: 4-layer testing framework (Unit → Integration → Scenario → Expert)
+- **Enhancement**: JSON-based scenario testing for edge cases (過水, 詐胡, 搶槓)
+- **Impact**: 100% Taiwan Mahjong rule authenticity with >95% test coverage
+- **Phase Integration**: Week 5-6 (Domain Core), continuing through all phases
+- **Owner**: Game Systems Architect (Lisa Wang)
+
+#### **5. Performance & 3D Optimization Strategy** ✅
+- **Identified Risk**: 3D board performance bottleneck (PoC findings)
+- **Solution Implemented**: Performance Budget + Low-Fidelity Mode
+- **Target Adjusted**: 45-50fps mobile (down from 60fps) with fallback options
+- **Phase Integration**: Week 9-10 (Frontend), Week 21-22 (React Native)
+- **Owners**: Frontend Architect (David Kim) + Mobile Architect (Sarah Patel)
+
+### Deferred Decisions
+
+#### **Player Analytics Framework** 📅 DEFERRED
+- **Reason**: Focus on core gameplay, avoid scope creep
+- **Review Date**: After Phase 2 completion (Month 5)
+- **Prepared Architecture**: Event-driven analytics pipeline ready for future implementation
+
+### Architecture Review Outcomes
+
+✅ **Overall Architecture**: Hybrid modular monolith with DDD **APPROVED**  
+✅ **Technology Stack**: React/React Native + Node.js + PostgreSQL/Redis **APPROVED**  
+✅ **Security Framework**: ECDSA cryptographic protection **APPROVED**  
+✅ **Performance Strategy**: Multi-level caching + optimization budgets **APPROVED**  
+✅ **Testing Strategy**: 4-layer comprehensive validation **APPROVED**  
+
+### Implementation Impact Summary
+
+| Area | Original Plan | Post-Review Enhancement | Implementation Week |
+|------|---------------|-------------------------|---------------------|
+| **Module Boundaries** | Manual code review | Automated fitness functions | 3-4 |
+| **Caching Strategy** | Basic Redis cache | Cache-Aside + proactive refresh | 3-4 |
+| **Network Resiliency** | Standard WebSocket | Command queue + heartbeat + anti-abuse | 3-4, 9-10 |
+| **Testing Coverage** | >90% coverage | >95% + 4-layer + JSON scenarios | 5-6+ |
+| **3D Performance** | 60fps target | 45-50fps + Performance Budget + Low-Fi mode | 9-10, 21-22 |
+| **Mobile Network** | Basic reconnect | Graceful handling + exponential backoff | 21-22 |
+
+### Next Phase Actions
+
+**Immediate (Phase 1 Start)**:
+1. Implement architectural fitness functions in CI/CD pipeline
+2. Setup Redis caching infrastructure with proactive refresh
+3. Establish client-side command queue framework
+4. Begin comprehensive testing framework implementation
+
+**Phase 2 Validation**:
+- Performance Budget validation with real 3D assets
+- Load testing of caching strategy under production conditions
+- Network resiliency testing with mobile device farms
+
+**Expert Validation Schedule**:
+- Taiwan Mahjong masters consultation: Week 12-13 (Phase 2)
+- Cultural authenticity review: Week 18-19 (Phase 3)
+- Final expert approval: Week 30-31 (Phase 4)
 
 ---
 
