@@ -83,7 +83,7 @@ const mvpStack = {
 
 #### DEFERRED (Post-MVP)
 - ❌ Native mobile apps (iOS/Android)
-- ❌ AI opponents for practice
+- ✅ Rule-based opponents for practice (Added via ADR-009)
 - ❌ Ranking/ELO systems
 - ❌ Tournament modes
 - ❌ Advanced analytics
@@ -206,7 +206,7 @@ Deferred: Advanced cryptographic signatures, ML-based cheat detection, comprehen
 - **Technical Debt Risk**: Simplified implementations may need refactoring
 - **Mobile Experience**: Web-based mobile experience vs native apps
 - **Scalability Constraints**: Single-region deployment limits growth
-- **Advanced Features Missing**: No AI, rankings, or social features
+- **Advanced Features Missing**: Limited rankings or social features (Rule-based opponents now included via ADR-009)
 
 ### Risks & Mitigations
 
@@ -233,7 +233,7 @@ The MVP architecture is designed to evolve into the full product architecture:
 Post-MVP features can be added incrementally:
 - Native mobile apps (React Native code sharing)
 - Advanced security (cryptographic signatures)
-- AI opponents (new game modes)
+- Enhanced rule-based opponents (additional difficulty levels, cultural patterns)
 - Social features (new modules)
 - Analytics (separate data pipeline)
 

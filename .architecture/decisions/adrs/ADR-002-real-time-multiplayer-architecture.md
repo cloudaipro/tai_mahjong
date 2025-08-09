@@ -106,7 +106,7 @@ The architecture must handle Taiwan Mahjong specific requirements:
 1. **Disconnection Handling**
    - 30-second grace period for reconnection
    - Game pause when player disconnects
-   - AI replacement for permanently disconnected players
+   - Rule-based opponent replacement for permanently disconnected players
 
 2. **Network Resilience**
    - Automatic reconnection with exponential backoff
@@ -235,7 +235,7 @@ class ClaimResolver {
 - [ ] All Taiwan Mahjong claiming rules correctly implemented
 - [ ] Automatic flower tile replacement works correctly
 - [ ] Complex multi-player claiming scenarios handled properly
-- [ ] AI player replacement functions seamlessly
+- [ ] Rule-based opponent replacement functions seamlessly
 
 ### Reliability Requirements
 - [ ] Graceful handling of all network failure scenarios

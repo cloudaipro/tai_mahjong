@@ -56,7 +56,7 @@ Based on the PRD requirements and technical analysis, we need to make strategic 
 
 ### Game Engine Architecture
 - **Rules Engine**: TypeScript classes for Taiwan Mahjong logic
-- **AI System**: Decision tree algorithm for different difficulty levels
+- **Rule-Based Expert System**: YAML-configured decision algorithms for different difficulty levels with cultural authentication
 - **Scoring Engine**: Comprehensive 台数 (tai) calculation system
 - **Anti-cheat**: Server-side validation of all game actions
 

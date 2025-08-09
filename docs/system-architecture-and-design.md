@@ -38,7 +38,7 @@ This document presents the comprehensive system architecture and design for the 
 **Architecture Focus**: Component-based design, Progressive Web App implementation
 
 ### **Game System Architect** - Lisa Wang
-**Primary Responsibility**: Taiwan Mahjong game logic, rule engine, AI systems
+**Primary Responsibility**: Taiwan Mahjong game logic, rule engine, rule-based expert systems
 **Key Contributions**: Domain-driven game modeling, rule validation engine, testing framework
 **Architecture Focus**: Game domain modeling, ADR-007 4-layer testing framework
 
@@ -76,7 +76,7 @@ graph TB
     subgraph "External Actors"
         P1[Taiwan Mahjong Players]
         P2[International Players]
-        P3[AI Training Systems]
+        P3[Rule-Based Expert Systems]
         P4[Payment Providers]
         P5[Social Media APIs]
         P6[Analytics Services]
@@ -99,7 +99,7 @@ graph TB
     
     P1 -->|"Play Games, Social Interaction"| CORE
     P2 -->|"Learn Taiwan Mahjong"| CORE
-    P3 -->|"AI Model Training Data"| CORE
+    P3 -->|"Cultural Rule Validation"| CORE
     P4 -->|"Payment Processing"| CORE
     P5 -->|"Social Sharing"| CORE
     P6 -->|"Usage Analytics"| CORE
@@ -132,7 +132,7 @@ The System Context Diagram provides the highest-level view of the Taiwan Mahjong
 **Primary Users:**
 - **Taiwan Mahjong Players**: Core user base familiar with traditional 16-tile rules, requiring authentic gameplay experience with real-time multiplayer capabilities
 - **International Players**: Secondary audience learning Taiwan Mahjong, needing tutorial systems and cultural context
-- **AI Training Systems**: Machine learning services that analyze gameplay data to improve AI opponents and detect cheating patterns
+- **Rule-Based Expert Systems**: Cultural authentication services that validate Taiwan Mahjong rule authenticity and provide expert-approved opponent behavior patterns
 
 **External Service Dependencies:**
 - **Payment Providers**: Critical for monetization through multiple regional payment methods (Stripe, PayPal, Alipay)
@@ -157,7 +157,7 @@ The System Context Diagram provides the highest-level view of the Taiwan Mahjong
 - **Core Platform ↔ Payment Providers**: Secure transaction processing with PCI DSS compliance, webhook notifications for payment status, subscription management, and fraud detection integration
 - **Core Platform ↔ Social Media APIs**: OAuth authentication flows, social graph integration for friend discovery, content sharing with privacy controls, and marketing campaign coordination
 - **Core Platform ↔ Analytics Services**: Real-time event streaming for user behavior analysis, funnel optimization data, A/B testing result aggregation, and business intelligence dashboard feeds
-- **Core Platform ↔ AI Training Systems**: Anonymized gameplay data export for AI improvement, model deployment for enhanced opponents, behavior pattern analysis for anti-cheat systems
+- **Core Platform ↔ Rule-Based Expert Systems**: Cultural rule validation, traditional pattern verification, expert-approved opponent configurations, authentic Taiwan Mahjong behavior encoding
 
 **Critical Supporting System Dependencies:**
 - **Core Platform ↔ PostgreSQL Cluster**: ACID-compliant transactions for game integrity, read/write splitting for performance, automated backup coordination, and disaster recovery synchronization
@@ -265,7 +265,7 @@ The Container Architecture Diagram illustrates the physical deployment structure
 **Application Tier - Modular Services:**
 - **REST API Server**: Handles HTTP requests with JWT authentication, input validation, rate limiting, and API versioning. Processes game actions, user management, and business logic through well-defined endpoints
 - **WebSocket Server**: Manages real-time bidirectional communication using Socket.io with room management, connection persistence, heartbeat monitoring, and automatic reconnection for game state synchronization
-- **Game Engine**: Core Taiwan Mahjong logic processor handling rule validation, score calculation, AI decision-making, and game state management with deterministic execution and audit trails
+- **Game Engine**: Core Taiwan Mahjong logic processor handling rule validation, score calculation, rule-based opponent decision-making, and game state management with deterministic execution and audit trails
 
 **Data Tier - High Availability:**
 - **PostgreSQL Cluster**: Primary/replica configuration with automated failover, read scaling, connection pooling, and backup management. Stores user data, game history, statistics, and configuration with ACID compliance
@@ -352,7 +352,7 @@ graph TB
         
         subgraph "Game Core Module"
             GAME_CTRL[Game Controller<br/>Game Operations<br/>State Validation]
-            GAME_ENGINE[Taiwan Mahjong Engine<br/>Rule Processing<br/>AI Opponents]
+            GAME_ENGINE[Taiwan Mahjong Engine<br/>Rule Processing<br/>Rule-Based Opponents]
             GAME_STATE[Game State Manager<br/>Turn Management<br/>Score Calculation]
             GAME_REPO[Game Repository<br/>Match History<br/>Statistics Storage]
         end
@@ -806,9 +806,9 @@ graph TB
             DATADOG[Datadog<br/>Infrastructure<br/>APM]
         end
         
-        subgraph "AI & ML Services"
-            OPENAI[OpenAI<br/>AI Opponents<br/>Natural Language]
-            TENSORFLOW[TensorFlow<br/>Behavior Analysis<br/>Anti-cheat]
+        subgraph "Rule-Based Expert Services"
+            RULE_ENGINE[Rule Engine<br/>Expert Opponents<br/>Cultural Validation]
+            CULTURAL_VALIDATOR[Cultural Validator<br/>Taiwan Expert Rules<br/>Authenticity Check]
         end
     end
     
@@ -849,9 +849,9 @@ graph TB
     API -.->|SDK| SENTRY
     API -.->|Agent| DATADOG
     
-    %% AI/ML Integrations
-    GAME -.->|API| OPENAI
-    GAME -.->|gRPC| TENSORFLOW
+    %% Rule-Based Expert Integrations
+    GAME -.->|API| RULE_ENGINE
+    GAME -.->|REST| CULTURAL_VALIDATOR
     
     %% Protocol Usage
     REST -.-> API
@@ -872,7 +872,7 @@ graph TB
     class FACEBOOK,GOOGLE,WECHAT social
     class AWS_S3,AWS_SES,AWS_SNS cloud
     class MIXPANEL,SENTRY,DATADOG analytics
-    class OPENAI,TENSORFLOW ai
+    class RULE_ENGINE,CULTURAL_VALIDATOR rule_based
     class REST,WEBHOOK,GRAPHQL,WEBSOCKET protocol
 ```
 
@@ -890,7 +890,7 @@ Serves as the single point of entry for all external integrations, implementing 
 Manages multi-factor authentication, OAuth 2.0 flows, JWT token lifecycle, and integration with social login providers. This centralized approach ensures consistent security policies across all authentication methods while supporting diverse regional preferences.
 
 **Game Service:**
-Contains the core Taiwan Mahjong logic, real-time engine, and AI systems. This service integrates with external AI/ML platforms for enhanced opponent intelligence and anti-cheat systems while maintaining the authentic Taiwan Mahjong experience.
+Contains the core Taiwan Mahjong logic, real-time engine, and rule-based expert systems. This service integrates with expert-validated rule engines for authentic opponent behavior and cultural validation while maintaining the traditional Taiwan Mahjong experience.
 
 **Social Service & User Service:**
 Handle community features, friend networks, chat systems, and player profiles. These services integrate with social platforms for login, sharing, and community building while maintaining user privacy and data sovereignty.
@@ -920,9 +920,9 @@ Orchestrates multi-channel communication including push notifications, email cam
 - **Sentry**: Error tracking and performance monitoring with real-time alerting and debugging capabilities
 - **Datadog**: Infrastructure monitoring with APM, log aggregation, and comprehensive observability across the entire stack
 
-**AI & Machine Learning Integration:**
-- **OpenAI**: Advanced AI opponents with natural language processing for enhanced chat moderation and player support
-- **TensorFlow**: Behavior analysis for anti-cheat systems, player skill assessment, and game balance optimization
+**Rule-Based Expert System Integration:**
+- **Rule Engine**: Expert-validated opponent decision systems with cultural authenticity validation and traditional Taiwan Mahjong patterns
+- **Cultural Validator**: Taiwan Mahjong expert consultation system for rule authenticity, traditional pattern validation, and cultural compliance verification
 
 **Integration Protocols & Patterns:**
 
@@ -970,9 +970,9 @@ Orchestrates multi-channel communication including push notifications, email cam
 - **Infrastructure → Sentry**: Automatic error reporting with stack traces, performance monitoring data, release tracking integration, and issue alerting workflows
 - **Infrastructure → Datadog**: Metrics ingestion through StatsD protocol, log forwarding with structured data, APM trace collection, and infrastructure monitoring integration
 
-**AI/ML Service Integration:**
-- **Game Service → OpenAI**: API calls for enhanced AI opponent decision-making, natural language processing for chat moderation, content generation for tutorials, and personalized player coaching
-- **Game Service → TensorFlow**: Model serving for behavior analysis, real-time inference for anti-cheat detection, batch processing for player skill assessment, and model update deployment coordination
+**Rule-Based Expert Service Integration:**
+- **Game Service → Rule Engine**: API calls for expert-validated opponent decision-making, cultural authenticity validation for game moves, traditional pattern verification, and rule-based coaching systems
+- **Game Service → Cultural Validator**: Expert consultation requests for rule verification, traditional pattern validation queries, cultural authenticity checks, and Taiwan Mahjong compliance certification
 
 **Protocol-Specific Connection Patterns:**
 
@@ -1196,7 +1196,7 @@ Provides global edge locations for static asset delivery, DDoS protection, WAF s
 - **Web Server Auto Scaling Group (2-10 instances)**: Serves static content, handles initial user requests, and provides PWA functionality. Scales based on CPU utilization and request volume with predictive scaling for traffic patterns
 - **API Server Auto Scaling Group (3-15 instances)**: Processes business logic, handles authentication, manages user data, and coordinates game operations. Implements circuit breakers and bulkhead patterns for resilience
 - **WebSocket Server Auto Scaling Group (2-8 instances)**: Manages real-time connections with sticky session support, connection pooling, and graceful connection migration during scaling events
-- **Game Engine Auto Scaling Group (5-20 instances)**: Processes Taiwan Mahjong game logic, manages game state, and handles AI opponents. Scales based on active game count with predictive scaling for peak gaming hours
+- **Game Engine Auto Scaling Group (5-20 instances)**: Processes Taiwan Mahjong game logic, manages game state, and handles rule-based opponents. Scales based on active game count with predictive scaling for peak gaming hours
 
 **High-Availability Data Tier:**
 - **PostgreSQL Primary (RDS Multi-AZ)**: Provides ACID-compliant storage with automatic failover, backup management, and performance monitoring. Implements connection pooling and read replica distribution
@@ -1679,7 +1679,7 @@ graph TB
     
     subgraph "Precomputation Layer"
         GAME_CALC[Game Calculations<br/>Taiwan Mahjong Scoring<br/>Precomputed Hands]
-        AI_DECISIONS[AI Decisions<br/>Common Scenarios<br/>Decision Trees]
+        RULE_DECISIONS[Rule-Based Decisions<br/>Expert Scenarios<br/>Cultural Patterns]
         STATISTICS[Statistics<br/>Player Rankings<br/>Game Analytics]
     end
     
@@ -1697,7 +1697,7 @@ graph TB
     READ_REPLICA --> MATERIALIZED
     
     GAME_CALC --> REDIS_L1
-    AI_DECISIONS --> REDIS_L2
+    RULE_DECISIONS --> REDIS_L2
     STATISTICS --> MATERIALIZED
     
     classDef client fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
@@ -1710,7 +1710,7 @@ graph TB
     class GLOBAL_CDN,REGIONAL_CDN cdn
     class REDIS_L1,REDIS_L2,REDIS_CLUSTER redis
     class PG_CACHE,READ_REPLICA,MATERIALIZED db
-    class GAME_CALC,AI_DECISIONS,STATISTICS compute
+    class GAME_CALC,RULE_DECISIONS,STATISTICS compute
 ```
 
 ### 9.2 Performance Targets & Monitoring
@@ -1801,12 +1801,14 @@ classDiagram
         +handleFlowers(player)
     }
     
-    class AIOpponent {
+    class RuleBasedOpponent {
         -difficulty: Difficulty
-        -strategy: Strategy
+        -profile: BehavioralProfile
+        -ruleSet: ExpertRuleSet
         +makeDecision(gameState)
         +evaluateHand(hand)
         +chooseBestDiscard(tiles)
+        +validateCulturalAuthenticity(move)
     }
     
     Game "1" --> "4" Player
@@ -1815,15 +1817,15 @@ classDiagram
     Hand "1" --> "*" Meld
     Meld "1" --> "*" Tile
     Game --> TaiwanMahjongRules
-    Player --> AIOpponent
+    Player --> RuleBasedOpponent
     
     classDef core fill:#e8f5e8,stroke:#2e7d32
     classDef rules fill:#fff3e0,stroke:#ef6c00
-    classDef ai fill:#e3f2fd,stroke:#1976d2
+    classDef rule_based fill:#e3f2fd,stroke:#1976d2
     
     class Game Player Hand Tile Meld core
     class TaiwanMahjongRules rules
-    class AIOpponent ai
+    class RuleBasedOpponent rule_based
 ```
 
 ### 10.2 Game State Machine
@@ -2172,7 +2174,7 @@ gantt
     Performance Optimization    :2025-05-15, 2025-06-30
     
     section Phase 4: Advanced Features
-    AI Opponent System          :2025-06-01, 2025-07-15
+    Rule-Based Expert System     :2025-06-01, 2025-07-15
     Social Features            :2025-06-15, 2025-07-30
     Analytics & Monitoring     :2025-07-01, 2025-08-15
     Payment Integration        :2025-07-15, 2025-08-30
@@ -2197,7 +2199,7 @@ graph TB
         
         subgraph "Backend Team (4-5 developers)"
             BE_LEAD[Backend Lead<br/>Node.js Architecture<br/>API Design]
-            BE_GAME[Game Developers &#40;2&#41;<br/>Taiwan Mahjong Logic<br/>AI Implementation]
+            BE_GAME[Game Developers &#40;2&#41;<br/>Taiwan Mahjong Logic<br/>Rule-Based Implementation]
             BE_INFRA[Infrastructure Developers &#40;2-3&#41;<br/>Database, Caching<br/>DevOps, Security]
         end
         

@@ -55,7 +55,7 @@ We will adopt **Modular Monolith Architecture** for the Taiwan Mahjong online ga
 
 ### Module Structure:
 ```
-├── game-core/              # Taiwan Mahjong rules, scoring, AI
+├── game-core/              # Taiwan Mahjong rules, scoring, rule-based opponents
 ├── room-management/        # Room creation, matchmaking
 ├── user-management/        # Authentication, profiles, friends
 ├── real-time-communication/# WebSocket handling, messaging
