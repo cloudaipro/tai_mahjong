@@ -78,15 +78,6 @@ The `reference/` directory contains extensive Taiwan Mahjong documentation:
 - Visual guides and examples
 - These files are essential for understanding authentic Taiwan Mahjong requirements
 
-## MCP Server Configuration
-
-Five MCP servers are configured in Claude Code system:
-1. **context7**: For retrieving up-to-date library documentation and code examples
-2. **graphiti-memory**: Knowledge graph memory service with Neo4j backend
-3. **firecrawl-mcp**: Advanced web scraping and content extraction
-4. **puppeteer**: Browser automation and interaction
-5. **sequential-thinking**: Dynamic problem-solving through structured thought processes
-
 ## Development Workflow
 
 This project uses a PRP (Product Requirements Process) workflow:
